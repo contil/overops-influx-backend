@@ -30,8 +30,17 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 39,
-  "iteration": 1549928907044,
+  "iteration": 1552168827931,
   "links": [
+    {
+      "icon": "dashboard",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [],
+      "tooltip": "Home",
+      "type": "link",
+      "url": "d/lg0U4qriz/home"
+    },
     {
       "asDropdown": true,
       "icon": "external link",
@@ -74,13 +83,13 @@
       "interval": null,
       "links": [
         {
-          "dashboard": "Reliability Scorecard",
+          "dashboard": "Reliability Analysis",
           "includeVars": true,
           "keepTime": true,
           "targetBlank": true,
-          "title": "Reliability Scorecard",
+          "title": "Reliability Analysis",
           "type": "absolute",
-          "url": "d/lfqKXMfmz/reliability-scorecard"
+          "url": "d/4DHQ63-ik/reliability-analysis"
         }
       ],
       "mappingType": 1,
@@ -198,13 +207,14 @@
       "links": [
         {
           "dashUri": "db/performance",
-          "dashboard": "Performance",
+          "dashboard": "Errors",
           "includeVars": true,
           "keepTime": true,
+          "params": "$failureTypesArray",
           "targetBlank": true,
-          "title": "Performance",
+          "title": "Errors",
           "type": "absolute",
-          "url": "d/Z40SpeJmz/performance"
+          "url": "d/HYBPMdYik/errors"
         }
       ],
       "mappingType": 1,
@@ -564,7 +574,16 @@
       },
       "id": 54,
       "interval": null,
-      "links": [],
+      "links": [
+        {
+          "dashboard": "Increasing Errors",
+          "includeVars": true,
+          "keepTime": true,
+          "title": "Increasing Errors",
+          "type": "absolute",
+          "url": "/d/WZ739NYmk/increasing-errors"
+        }
+      ],
       "mappingType": 1,
       "mappingTypes": [
         {
@@ -2116,10 +2135,9 @@
       {
         "allValue": "all",
         "current": {
+          "selected": true,
           "text": "None",
-          "value": [
-            "None"
-          ]
+          "value": "None"
         },
         "datasource": "OO",
         "hide": 0,
@@ -2238,9 +2256,7 @@
         "allValue": "all",
         "current": {
           "text": "All",
-          "value": [
-            "$__all"
-          ]
+          "value": "$__all"
         },
         "datasource": "OO",
         "hide": 0,
@@ -2249,8 +2265,8 @@
         "multi": true,
         "name": "type",
         "options": [],
-        "query": "eventTypes({\"environments\":\"$environments\", \"view\":\"$view\"})",
-        "refresh": 1,
+        "query": "eventTypes({\"environments\":\"$environments\", \"view\":\"$view\", \"timeFilter\":\"$timeFilter\"})",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -2264,9 +2280,7 @@
         "allValue": "All",
         "current": {
           "text": "All",
-          "value": [
-            "$__all"
-          ]
+          "value": "$__all"
         },
         "datasource": "OO",
         "hide": 0,
@@ -2275,7 +2289,7 @@
         "multi": true,
         "name": "transactions",
         "options": [],
-        "query": "transactions({\"environments\":\"$environments\",\"view\":\"$view\",\"timeFilter\":\"time >= now() - 7d\",\"sorted\":\"true\"})",
+        "query": "transactions({\"environments\":\"$environments\",\"view\":\"$view\",\"timeFilter\":\"$timeFilter\",\"sorted\":\"true\"})",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -2289,6 +2303,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "24",
           "value": "24"
         },
@@ -2313,6 +2328,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "100",
           "value": "100"
         },
@@ -2370,6 +2386,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "Logged Error|Uncaught Exception|HTTP Error",
           "value": "Logged Error|Uncaught Exception|HTTP Error"
         },
@@ -2394,6 +2411,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "app.overops.com",
           "value": "app.overops.com"
         },
@@ -2418,6 +2436,7 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
           "text": "443",
           "value": "443"
         },
@@ -2482,11 +2501,36 @@
         "query": "Critical Types",
         "skipUrlSync": false,
         "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "var-type=Logged Error&var-type=Uncaught Exception&var-type=HTTP Error&",
+          "value": "var-type=Logged Error&var-type=Uncaught Exception&var-type=HTTP Error&"
+        },
+        "datasource": "OO",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "failureTypesArray",
+        "options": [],
+        "query": "convertToArray({\"array\":\"$transactionFailureTypes\", \"prefix\":\"var-type=\", \"postfix\":\"&\"})",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-1d",
     "to": "now"
   },
   "timepicker": {
@@ -2509,5 +2553,5 @@
   "timezone": "",
   "title": "Site Reliability",
   "uid": "nxdE2gXmk",
-  "version": 9
+  "version": 23
 }

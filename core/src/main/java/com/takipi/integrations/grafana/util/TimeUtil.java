@@ -62,12 +62,14 @@ public class TimeUtil {
 	
 	public static String getTimeRange(int min) {
        
-		if (min % (24 * 60) == 0) {
-        		return (min / 24 / 60) + DAY_POSTFIX;
-        }
+		//if (min % (24 * 60) == 0) {
+        //		double days = (double)(min) / 24 / 60;
+		//	return String.valueOf(Math.round(days)) + DAY_POSTFIX;
+        //}
 		
-		if (min % (60) == 0) {
-    			return (min / 60) + HOUR_POSTFIX;
+		if (min % 60 == 0) {
+    			double hours = (double)(min) / 60;
+			return String.valueOf(Math.round(hours)) + HOUR_POSTFIX;
 		}
 		
 		return min + MINUTE_POSTFIX;
@@ -112,6 +114,7 @@ public class TimeUtil {
 	}
 
 	public static int getStartDateTimeIndex(List<Pair<DateTime, DateTime>> intervals, String value) {
+		
 		DateTime dateTime = TimeUtil.getDateTime(value);
 
 		for (int i = 0; i < intervals.size(); i++) {
@@ -130,6 +133,28 @@ public class TimeUtil {
 		return -1;
 	}
 
+	public static String getTimeFilter(Pair<DateTime, DateTime> timespan) {
+		
+		DateTime now = DateTime.now();
+
+		long toDelta =  now.getMillis() - timespan.getSecond().getMillis();
+		
+		String result;
+		long toMinDelta = TimeUnit.MILLISECONDS.toMinutes(toDelta);
+		
+		if (toMinDelta <= 2) {
+			long fromDelta = timespan.getSecond().getMillis() - timespan.getFirst().getMillis();
+			long minDelta = TimeUnit.MILLISECONDS.toMinutes(fromDelta);
+				
+			String timeRange = TimeUtil.getTimeRange((int)minDelta);
+			result = LAST_TIME_WINDOW + timeRange;	
+		} else {
+			result = toTimeFilter(timespan.getFirst(), timespan.getSecond());	
+		}
+		
+		return result;
+	}
+	
 	public static Pair<DateTime, DateTime> getTimeFilter(String timeFilter) {
 		if ((timeFilter == null) || (timeFilter.isEmpty())) {
 			throw new IllegalArgumentException("timeFilter cannot be empty");
@@ -233,5 +258,24 @@ public class TimeUtil {
 	
 	public static String toTimeFilter(DateTime from, DateTime to) {
 		return SO_FAR_WINDOW + from.getMillis() + MILLI_UNIT + " " + RANGE_WINDOW + to.getMillis() + MILLI_UNIT;
+	}
+	
+	public static String getTimeRange(Pair<DateTime, DateTime> timespan) {
+		
+		String result;
+		
+		long toDelta =  DateTime.now().getMillis() - timespan.getSecond().getMillis();
+
+		if (TimeUnit.MILLISECONDS.toMinutes(toDelta) < 1) {
+			
+			long fromDelta = timespan.getSecond().getMillis() - timespan.getFirst().getMillis();
+			long minDelta = TimeUnit.MILLISECONDS.toMinutes(fromDelta);
+				
+			result = TimeUtil.getTimeRange((int)minDelta);	
+		} else {
+			result = null;
+		}
+		
+		return result;
 	}
 }

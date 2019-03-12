@@ -25,6 +25,7 @@ import com.takipi.api.client.request.event.EventRequest;
 import com.takipi.api.client.request.event.EventsRequest;
 import com.takipi.api.client.request.event.EventsSlimVolumeRequest;
 import com.takipi.api.client.request.metrics.GraphRequest;
+import com.takipi.api.client.request.process.JvmsRequest;
 import com.takipi.api.client.request.transaction.TransactionsGraphRequest;
 import com.takipi.api.client.request.transaction.TransactionsVolumeRequest;
 import com.takipi.api.client.request.view.ViewsRequest;
@@ -33,6 +34,7 @@ import com.takipi.api.client.result.deployment.DeploymentsResult;
 import com.takipi.api.client.result.event.EventResult;
 import com.takipi.api.client.result.event.EventsSlimVolumeResult;
 import com.takipi.api.client.result.metrics.GraphResult;
+import com.takipi.api.client.result.process.JvmsResult;
 import com.takipi.api.client.result.transaction.TransactionsGraphResult;
 import com.takipi.api.client.result.transaction.TransactionsVolumeResult;
 import com.takipi.api.client.result.view.ViewsResult;
@@ -246,6 +248,49 @@ public class ApiCache {
 		}
 	}
 	
+	protected static class ProcessesCacheLoader extends ServiceCacheLoader {
+		
+		protected boolean active;
+		
+		public ProcessesCacheLoader(ApiClient apiClient, ApiGetRequest<?> request, 
+			String serviceId, boolean active) {
+
+			super(apiClient, request, serviceId);
+			
+			this.active = active;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+
+			if (!(obj instanceof ProcessesCacheLoader)) {
+				return false;
+			}
+
+			if (!super.equals(obj)) {
+				return false;
+			}
+
+			ProcessesCacheLoader other = (ProcessesCacheLoader) obj;
+
+			if (active != other.active) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			return super.hashCode();
+		}
+		
+		@Override
+		public String toString() {
+			return this.getClass().getSimpleName() + " active: " + active;
+		}
+	}
+	
 	protected static class ApplicationsCacheLoader extends ServiceCacheLoader {
 		
 		protected boolean active;
@@ -359,10 +404,25 @@ public class ApiCache {
 
 			return true;
 		}
+		
+		private boolean compareTimeFilters(String t1, String t2) {
+			
+			String tu1 = TimeUtil.getTimeUnit(t1);
+			String tu2 = TimeUtil.getTimeUnit(t2);
+			
+			if ((tu1 == null) || (tu2 == null)) {
+				return t1.equals(t2);
+			}
+			
+			int ti1 = TimeUtil.parseInterval(tu1);
+			int ti2 = TimeUtil.parseInterval(tu2);
+
+			return ti1 == ti2;
+		}
 
 		@Override
 		public boolean equals(Object obj) {
-
+		
 			if (!(obj instanceof ViewInputCacheLoader)) {
 				return false;
 			}
@@ -374,7 +434,7 @@ public class ApiCache {
 			ViewInputCacheLoader other = (ViewInputCacheLoader) obj;
 			
 			if ((input.timeFilter != null) && (other.input.timeFilter != null) &&
-				(!Objects.equal(input.timeFilter, other.input.timeFilter))) {
+				(!compareTimeFilters(input.timeFilter, other.input.timeFilter))) {
 				return false;
 			}
 
@@ -849,6 +909,16 @@ public class ApiCache {
 		DeploymentsRequest request = DeploymentsRequest.newBuilder().setServiceId(serviceId).setActive(active).build();
 		DeploymentsCacheLoader cacheKey = new DeploymentsCacheLoader(apiClient, request, serviceId, active);
 		Response<DeploymentsResult> response = (Response<DeploymentsResult>)getItem(cacheKey);
+
+		return response;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static Response<JvmsResult> getProcesses(ApiClient apiClient, String serviceId, boolean connected) {
+
+		JvmsRequest request = JvmsRequest.newBuilder().setServiceId(serviceId).setConnected(connected).build();
+		ProcessesCacheLoader cacheKey = new ProcessesCacheLoader(apiClient, request, serviceId, connected);
+		Response<JvmsResult> response = (Response<JvmsResult>)getItem(cacheKey);
 
 		return response;
 	}
